@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Калькулятор ипотечных выплат</title>
+	<link rel="stylesheet" href="css/style.css"/>
+
+</head>
+ 
+<body>
+	<h1>Калькулятор 
+		<p><span>ипотечных выплат</span></p>
+	</h1>
+
+<div class="box">
+	<div class="head">сумма кредита</div>
+	<input id="sum" class="inbox" type="text" value="10 000 000">
+	<div class="small">размер суммы от 100 000 до 100 000 000</div>
+</div>
+<div class="box">
+	<div class="head">ставка %</div>
+	<input id="percent" class="inbox" type="text" value="10">
+	<div class="small">ставка от 0,01% до 25%</div>
+</div>
+<div class="box">
+	<div class="head">ежемесячный взнос</div>
+	<input id="month" class="inbox" type="text" value="100 000">
+	<div class="small">размер взноса от 1000 до 5 000 000</div>
+</div>
+<div class="box">
+	<div class="head">расчетное время погашения</div>
+	<div id="total" class="inbox inbox__modifyed">8 месяцев</div>
+	<div class="small">рассчет в целых годах и месяцах</div>
+</div>
+<button class="press">расчёт</button>
+<div id="comment" class="commenttext"></div>
+
+<!-- Подключаем ЯВАСКРИПТ =======================================================-->
+	<script src="js/script.js"></script>
+<!-- Подключаем ЯВАСКРИПТ =======================================================-->
+</body>
+</html>
+
+
+
