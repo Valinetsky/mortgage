@@ -1,1 +1,425 @@
-"use strict";let overtime,overtimePlus,lastMonthPay,counter=4,overalValue=5e6,overalValueMin=1e5,overalValueMax=1e8,interestRate=10;function rate(e){return e/12/100}let interestRateMin=.01,interestRateMax=25,monthPay=5e4,monthPayMin=1e3,monthPayMax=5e6,arr=[overalValue,interestRate,monthPay],arrMin=[overalValueMin,interestRateMin,monthPayMin],arrMax=[overalValueMax,interestRateMax,monthPayMax],arrFlag=[1,1,1],arrSymbols=[12,5,8],monthLimit=300,fields=document.querySelectorAll("input"),checkout=document.querySelectorAll(".small"),elem=document.querySelector("#total"),formInitComment=[];for(let e=0;e<3;e++)formInitComment[e]=checkout[e].innerHTML;function minmax(e,t,r){return r<e&&(r=e),r>t&&(r=t),r}function logab(e,t){return Math.log(e)/Math.log(t)}function numberToText(e,t){let r=Math.floor(100*e)/100,n=String(r).substr(0,t);return n=String(n),r>=1e4&&(n=String(n).replace(/(\d)(?=(\d{3})+(?!\d))/g,"$1 ")),n=n.replace(/\.0*$/gm,""),n=n.replace(".",","),n}function textToNumber(e,t){let r=String(e).replace(/\./g,",");return r=r.replace(",","."),r=r.replace(/[^.\d]/g,""),"."==r[0]&&(r="0"+r),"0"==r[0]&&"0"==r[1]&&(r=r.substr(1,t)),r=r.substr(0,t),r=r.replace(/\.0*$/gm,""),+r}function cleanDigit(e,t){let r=e.replace(/\./g,",");return r=r.replace(",","."),r=r.replace(/[^.\d]/g,""),r=r.substr(0,t),"."==r[0]&&(r="0"+r),"0"==r[0]&&"0"==r[1]&&(r=r.substr(1,t)),r=r.replace(/^\d+\,\d{0,2}$/),r=r.replace(".",","),r}function initLoop(){for(let e=0;e<fields.length;e++)fields[e].value=numberToText(arr[e],arrSymbols[e])}function mainLoop(){for(let e=0;e<fields.length;e++)fields[e].addEventListener("focus",(function(t){arr[e]=textToNumber(fields[e].value,arrSymbols[e]),fields[e].value=antidot(textToNumber(arr[e],arrSymbols[e]))})),fields[e].addEventListener("blur",(function(t){counter=4,arr[e]=textToNumber(fields[e].value,arrSymbols[e]),fields[e].value=numberToText(arr[e],arrSymbols[e]),arrFlag[e]||arbeit(e)})),fields[e].addEventListener("input",(function(t){elem.innerHTML="",arrFlag[e]=0;let r=fields[e].value;r=cleanDigit(r,arrSymbols[e]),fields[e].value=r,arr[e]=textToNumber(fields[e].value,arrSymbols[e]),buttonAct()}))}function period(){counter=1;for(let e=0;e<arrFlag.length;e++)arrFlag[e]=1;for(let e=0;e<fields.length;e++)check(e),arrFlag[e]=1;reCalc()}function reCalc(){let e;overalValue=arr[0],interestRate=arr[1],monthPay=arr[2],overtime=Math.ceil(1e4*logab(1/(1-overalValue*rate(interestRate)/monthPay),1+rate(interestRate)))/1e4,(Number.isNaN(overtime)||overtime>monthLimit)&&(arr[2]=badNumber(),initLoop(),reCalc()),overtimePlus=Math.ceil(overtime),lastMonthPay=Math.ceil((overtime-Math.floor(overtime))*monthPay*100)/100,e=overtimePlus%12==0?"":`${overtimePlus%12} ${textMonth(parseInt(overtimePlus%12))}`,parseInt(overtimePlus/12)?elem.innerHTML=`${parseInt(overtimePlus/12)} ${textYear(parseInt(overtimePlus/12))} ${e}`:elem.innerHTML=`${e}`,document.getElementById("comment").innerHTML="(Месяцев: "+(overtimePlus-1)+" ) X ("+noBreak(numberToText(monthPay))+" ежемесячно)&nbsp;= "+noBreak(numberToText((overtimePlus-1)*monthPay,10))+". И&nbsp;последний платеж: "+noBreak(numberToText(Math.ceil(cent(lastMonthPay))))+". Переплата: "+noBreak(numberToText(Math.ceil(cent((overtimePlus-1)*monthPay+lastMonthPay-overalValue))))+". <br> При расчете значения всех трех полей корректируются в соответствие с граничными параметрами. <br>Если расчетное время превысит 25 лет, будет скорректировано значение в поле ЕЖЕМЕСЯЧНЫЙ ВЗНОС. <br>Из-за погрешности вычислений, итоговое значение округлено.",buttonDis()}function antidot(e){return e=String(e).replace(".",",")}function dot(e){return e=+String(e).replace(",",".")}function cent(e){return Math.ceil(100*e)/100}initLoop(),mainLoop(),reCalc();const btn=document.querySelector("button");function textYear(e){let t,r=e%100;return r>=5&&r<=20?t="лет":(r%=10,t=1==r?"год":r>=2&&r<=4?"года":"лет"),t}function textMonth(e){let t;return t=1==e?"месяц":e<=4?"месяца":"месяцев",t}function noBreak(e){return e=e.replace(/ /g,"&nbsp;")}function badNumber(){return monthPay=overalValue*(rate(interestRate)*(1+rate(interestRate))**monthLimit)/((1+rate(interestRate))**monthLimit-1),monthPay=Math.ceil(cent(monthPay)),monthPay}function buttonDis(){let e=document.querySelector(".press");e.setAttribute("disabled",!0),e.classList.add("nopress"),document.querySelector(".commenttext").classList.remove("fade")}function buttonAct(){let e=document.querySelector(".press");e.removeAttribute("disabled"),e.classList.remove("nopress"),document.querySelector(".commenttext").classList.add("fade")}function arbeit(e){if(arrFlag[e])return;checkout[e].innerHTML;let t=setInterval((()=>{checkout[e].classList.add("redalert"),checkout[e].innerHTML="проверка и коррекция значения через "+(counter-1)+" с",counter-=1,counter<=0&&(clearInterval(t),check(e),checkout[e].classList.remove("redalert"),checkout[e].innerHTML=formInitComment[e])}),1e3,e)}function check(e){arr[e]=textToNumber(fields[e].value,arrSymbols[e]),arr[e]=minmax(arrMin[e],arrMax[e],arr[e]),fields[e].value=numberToText(arr[e]),arrFlag[e]=1}btn.addEventListener("click",period);
+"use strict"
+
+// timers
+let counter = 4;
+
+// ---------------------- number to check
+let overtime;
+let overtimePlus;
+let lastMonthPay;
+
+// ============================= min and max and value
+
+let overalValue     = 5000000;
+
+let overalValueMin  = 100000;
+let overalValueMax  = 100000000;
+
+let interestRate    = 10;
+// interestRate = rate(interestRate);
+function rate(argument) {
+    return argument / 12 / 100;
+};
+
+let interestRateMin = 0.01;
+let interestRateMax = 25;
+
+let monthPay        = 50000;
+let monthPayMin     = 1000;
+let monthPayMax     = 5000000;
+
+let arr = [overalValue, interestRate, monthPay];
+let arrMin = [overalValueMin, interestRateMin, monthPayMin];
+let arrMax = [overalValueMax, interestRateMax, monthPayMax];
+
+// ================ флаги чистых полей
+let arrFlag = [1,1,1];
+
+// ================ максимальное количество символов в поле
+let arrSymbols = [12,5,8];
+
+// ================ максимум месяцев = 25 лет
+let monthLimit = 300;
+
+// ================ all form
+let fields = document.querySelectorAll("input");
+let checkout = document.querySelectorAll(".small");
+let elem = document.querySelector('#total');
+
+// ================ слова ограничений для форм
+// let formInitComment = ['размер суммы от 100 000 до 100 000 000', 'ставка от 0,01% до 25%', 'размер взноса от 1000 до 5 000 000'];
+// берем прямо из HTML
+let formInitComment = [];
+for (let i = 0; i < 3; i++) {
+    formInitComment[i] = checkout[i].innerHTML;
+}
+
+
+
+// ================= functions
+// minmax
+function minmax(min, max, value) {
+    if (value<min) {value = min};
+    if (value>max) {value = max};
+    return value;
+}
+
+// logarithm
+function logab(number, base) {
+    return Math.log(number) / Math.log(base);
+};
+
+// замена на пробел между разрядами
+// /(\d)(?=(\d{3})+(?!\d))/g, '$1,'
+
+// плата в месяц let monthPay = str * (interestRate * (1 + interestRate) ** overtime) / ((1 + interestRate) ** overtime - 1);
+// let newStr = Math.ceil(monthPay)/ (interestRate * (1 + interestRate) ** overtime) / ((1 + interestRate) ** overtime - 1);
+// let diffStr = newStr - str;
+
+// ================ функции работы со статусом элемента
+// ================ перевод числа в текстовую форму
+function numberToText (numb, symbols) {
+    // берем число и оставляем два знака после точки (точка - разделитель)
+    let localNumb = Math.floor(numb * 100)/100;
+    // режем полученную строку на размер в символах
+    let str = String(localNumb).substr(0, symbols);
+    // строку в число
+    str = String(str);
+    // разбираем число в строку с разрядами по три, если str >= 10000
+    if (localNumb >= 10000) {
+        str = String(str).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ');
+    };
+    // если число содержит дробную часть - меняем первую точку на "," 
+    
+    // регулярка меняет окончание числа. Если в конце только . и НОЛИ - отрезает
+        str = str.replace(/\.0*$/gm, '');
+    // если в строке есть дробная часть - меняет . на ,
+        str = str.replace(".", ",");
+return str;
+};
+
+// ================ перевод текста в числовую форму
+function textToNumber (numb, symbols) {
+    let str = String(numb).replace(/\./g,",");
+    str = str.replace(",", ".");
+    str = str.replace(/[^.\d]/g,'');
+    if (str[0] == ".") {
+        str = "0" + str;
+    }
+    if (str[0] == "0" && str[1] == "0") {
+        str = str.substr(1, symbols);
+    }
+    str = str.substr(0, symbols);
+    str = str.replace(/\.0*$/gm, '');
+return +str;
+};
+
+// ============== возвращаем в форму значение при фокусе
+function cleanDigit (numb, symbols) {
+    let str = numb.replace(/\./g,",");
+    str = str.replace(",", ".");
+    str = str.replace(/[^.\d]/g,'');
+    str = str.substr(0, symbols);
+    if (str[0] == ".") {
+        str = "0" + str;
+    }
+    if (str[0] == "0" && str[1] == "0") {
+        str = str.substr(1, symbols);
+    }
+    // ============== должно оставить два знака после запятой
+    // вроде работает работает
+    str = str.replace(/^\d+\,\d{0,2}$/);
+    str = str.replace(".", ",");
+return str;
+};
+
+// ========================== инициирование форм
+function initLoop() {
+    for (let i = 0; i < fields.length; i++) {
+        fields[i].value = numberToText(arr[i], arrSymbols[i]);
+    };
+};
+
+// ========================== главный цикл форм
+function mainLoop() {
+    for (let i = 0; i < fields.length; i++) {
+
+// ================ фокус =====================================
+      fields[i].addEventListener("focus", function(event) {
+        // здесь нужно включать таймер
+        // fields[i].value = "Hello";
+        arr[i] = textToNumber(fields[i].value, arrSymbols[i]);
+        fields[i].value = antidot(textToNumber(arr[i], arrSymbols[i]));
+      });
+
+// ================ потеря фокуса =====================================
+      fields[i].addEventListener("blur", function(event) {
+        // здесь нужно включать таймер
+        // Правка 15082022 ---- counter
+        counter = 4;
+
+        arr[i] = textToNumber(fields[i].value, arrSymbols[i]);
+        fields[i].value = numberToText(arr[i], arrSymbols[i]);
+        // правка от 09082022 --- добавляем по блуру функцию проверки значения
+        if (!arrFlag[i]) {
+            arbeit(i);
+        }
+      });
+
+// ================ ввод в поле =====================================
+      fields[i].addEventListener("input", function(event) {
+        // убираем результат - расчетное время погашения
+        elem.innerHTML = "";
+
+        // выставляем флаг проверки
+        arrFlag[i] = 0;
+        let inputstr = fields[i].value;
+        inputstr = cleanDigit (inputstr, arrSymbols[i]);
+        fields[i].value = inputstr;
+        arr[i] = textToNumber(fields[i].value, arrSymbols[i]);
+        buttonAct();
+      });
+    };
+};
+
+// ============== button calculate
+function period() {
+    // ============= all Flags = 1
+    counter = 1;
+    for (let i = 0; i < arrFlag.length; i++) {
+    arrFlag[i] = 1;
+    console.log("Сброс флага проверки " + i + " - " + arrFlag[i]);
+    }
+    // ============= collect value
+    for (let i = 0; i < fields.length; i++) {
+
+        // функция проверки
+    check(i)
+    // ====== флаги --- чисто (1) 
+    arrFlag[i] = 1;
+    // ========== все три поля исправлены можно считать
+  };
+  reCalc();
+
+};
+
+function reCalc() {
+    // ======== new numbers
+    overalValue = arr[0];
+    interestRate = arr[1];
+    monthPay = arr[2];
+    
+    // ======== calculation
+    overtime = Math.ceil(logab ((1/(1-overalValue*rate(interestRate)/monthPay)), (1+rate(interestRate))));
+    console.log("периоды " + overtime);
+
+    // ======== проверка на выход за пределы разумного!!!
+    if (Number.isNaN(overtime) || overtime > monthLimit) {
+        arr[2] = badNumber();
+        console.log("ПЕРЕСЧЕТ!!! " + arr[2]);
+        initLoop();
+        reCalc();
+    };
+
+    overtimePlus = Math.ceil(overtime);
+    console.log("(объем в целых) " + overtimePlus);
+
+    lastMonthPay = cycle();
+
+    // ===== output
+    
+    let endText;
+    if ((overtimePlus % 12) == 0) {
+        endText = "";
+    } else {
+        endText = `${(overtimePlus % 12)} ${textMonth(parseInt(overtimePlus % 12))}`
+    }
+    if (parseInt((overtimePlus/12))) {
+        elem.innerHTML = `${parseInt((overtimePlus/12))} ${textYear(parseInt((overtimePlus/12)))} ${endText}`;
+    }
+    else elem.innerHTML = `${endText}`;
+
+
+    let comm = document.getElementById('comment');
+    // Правка 15082022 --------- ЖУТКАЯ КОНСТРУКЦИЯ
+    comm.innerHTML = "(Месяцев: " + (overtimePlus - 1) + " ) X (" + noBreak(numberToText(monthPay)) + 
+        " ежемесячно)&nbsp;= " + noBreak(numberToText((overtimePlus - 1) * monthPay, 10)) + 
+        ". И&nbsp;последний платеж: " + noBreak(numberToText(Math.ceil(cent(lastMonthPay)))) + 
+        ". Переплата:&nbsp;" + 
+        noBreak(numberToText(Math.ceil(cent((((overtimePlus - 1) * monthPay + lastMonthPay)-overalValue))))) + ". <br> При расчете значения всех трех полей корректируются в соответствие с&nbsp;граничными&nbsp;параметрами. <br>Если расчетное время превысит 25 лет, будет скорректировано значение в&nbsp;поле&nbsp;ЕЖЕМЕСЯЧНЫЙ ВЗНОС. <br>Из-за погрешности вычислений, итоговое значение округлено.";
+    buttonDis();
+};
+
+// ================= . > ,
+function antidot(argument) {
+    argument = String(argument).replace(".", ",");
+    return argument;
+}
+
+// ================= , > .
+function dot(argument) {
+    argument = +String(argument).replace(",", ".");
+    return argument;
+}
+
+// ================= округление вверх до двух после запятой
+function cent(argument) {
+    // return Math.ceil(argument*100)/100;
+    return argument;
+}
+
+initLoop();
+mainLoop();
+reCalc();
+
+const btn = document.querySelector("button");
+btn.addEventListener("click", period);
+
+// ====================== функция вывода "год, года, лет" от числительного
+function textYear(age) {
+    let txt;
+    let count = age % 100;
+    if (count >= 5 && count <= 20) {
+        txt = 'лет';
+    } else {
+        count = count % 10;
+        if (count == 1) {
+            txt = 'год';
+        } else if (count >= 2 && count <= 4) {
+            txt = 'года';
+        } else {
+            txt = 'лет';
+        }
+    }
+    return txt;
+}
+
+// ================ функция вывода "месяц, месяца, месяцев" от числительного
+function textMonth(age) {
+    let txt;
+    if (age == 1) {
+        txt = 'месяц';
+    } else {
+        if (age <= 4) {
+            txt = 'месяца';
+        } else  {
+            txt = 'месяцев';
+        }
+    }
+    return txt;
+}
+
+// =============== неразрывные пробелы
+function noBreak(text) {
+    text = text.replace(/ /g, '&nbsp;');
+    return text;
+}
+
+// плата в месяц let monthPay = str * (interestRate * (1 + interestRate) ** overtime) / ((1 + interestRate) ** overtime - 1);
+function badNumber() {
+    // let percent = rate(interestRate);
+    // let braket = (1 + percent)**monthLimit;
+    // monthPay = overalValue * percent * braket / (braket - 1);
+    // monthPay = overalValue * (rate(interestRate) * (1 + rate(interestRate)) ** overtime) / ((1 + rate(interestRate)) ** 300 - 1);
+    monthPay = overalValue * (rate(interestRate) * (1 + rate(interestRate)) ** monthLimit) / ((1 + rate(interestRate)) ** monthLimit - 1);
+    monthPay = Math.ceil(cent(monthPay));
+    return monthPay;
+}
+
+// console.log("badNumber " + badNumber());
+
+
+
+// рассчет аннуитентного платежа. 300 => 25 лет 
+// x = s * (p + p / (1 + p)**300 - 1);
+
+
+// неактивная кнопка
+function buttonDis(){
+    let btn = document.querySelector('.press');
+    btn.setAttribute('disabled', true);
+    btn.classList.add('nopress');
+    let blackbox = document.querySelector('.commenttext');
+    blackbox.classList.remove('fade');
+}
+
+// активная кнопка
+function buttonAct(){
+    let btn = document.querySelector('.press');
+    btn.removeAttribute('disabled');
+    btn.classList.remove('nopress');
+    let blackbox = document.querySelector('.commenttext');
+    blackbox.classList.add('fade');
+
+    
+}
+
+// пояснения пересчета можно вставить в комментарий. делаю. Сделал
+
+// // пора работать с таймерами
+// // задержка выполнения в секундах let counter = 3;
+// /*let counter = 3;
+// const intervalId = setInterval(() => {
+// console.log('проверка и коррекция значения через ' + counter + " с");
+// counter -= 1;
+// if (counter === 0) {
+//     console.log('Done');
+//     clearInterval(intervalId);
+//     // Таймер закончил отсчет. Здесь можно вызывать функцию проверки.
+//   }
+// }, 1000);*/
+
+
+
+// ======= counter - задержка в секундах, index - номер проверяемого поля
+function arbeit(index) {
+    // console.log('arrFlag[index] ' + arrFlag[index]);
+    if (arrFlag[index]) {
+        return;
+        };
+    let checkoutSaved = checkout[index].innerHTML;
+    let intervalId = setInterval(() => {
+    checkout[index].classList.add('redalert');
+    checkout[index].innerHTML = "проверка и коррекция значения через " + (counter - 1) + " с"
+    // console.log("проверка и коррекция значения через " + (counter - 1) + " с");
+    counter -= 1;
+    if (counter <= 0) {
+        console.log('Done');
+        clearInterval(intervalId);
+        // Таймер закончил отсчет. Здесь можно вызывать функцию проверки.
+        check(index);
+        checkout[index].classList.remove('redalert');
+        checkout[index].innerHTML = formInitComment[index];
+      }
+    }, 1000, index);
+}
+
+// функция проверки
+function check(i) {
+    // ====== value to number
+    arr[i] = textToNumber(fields[i].value, arrSymbols[i]);
+    // ====== number to minmax
+    arr[i] = minmax(arrMin[i], arrMax[i], arr[i]);
+    fields[i].value = numberToText(arr[i]);
+    // ====== 
+    arrFlag[i] = 1;
+    console.log('ПРОВЕРКА НАЧАЛАСЬ arr[i] ' + arr[i]);
+}
+
+// таймер работает все хорошо!!!
+// arbeit(1);
+// console.log('checkout[1].value ' + checkout[1].innerHTML);
+
+
+// -------------------- новая функция счета в цикле
+function cycle() {
+    let S = overalValue;
+    let P = rate(interestRate);
+    let n = overtimePlus;
+    let x = monthPay;
+
+    for (let i = 0; i < overtimePlus - 1; i++) {
+        S = (S + S * P - x)*100/100;
+    }
+    return Math.ceil(S);
+}
